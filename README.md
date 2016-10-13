@@ -1,7 +1,7 @@
 # yarma <a target="_blank" href="http://melpon.org/wandbox/permlink/huhA2GdFq64cM4Ya">![Try it online][badge.wandbox]</a>
-Yet Another Reflection Macro: easy, portable, flexible reflection in C++17.
+Yet Another Reflection Macro: simple, flexible reflection in C++17.
 
-The `YARMA_REFLECT` macro simply defines a member function named "members" that returns an array of custom variant types, which can then be inspected.
+You only need a single header file, `yarma.hpp`. The `YARMA_REFLECT` macro simply defines a member function named "members" that returns an array of custom variant types, which can then be inspected.
 ```cpp
 #include <string>
 #include <iostream>
@@ -65,6 +65,6 @@ hourly_wage = 7.25 (data)
 weekly_hours = 40 (data) 
 weekly_earnings = 290 (function taking 0 arguments) 
 ```
-Yarma was designed for ease-of-use over performance, but it's not particularly slow either. Yarma depends on a working implementation of `std::variant`, Boost (for Boost.Preprocessor), and my own [CallableTraits](https://github.com/badair/callable_traits) library.
+Yarma was designed for ease-of-use over performance, but it's not terribly slow either. Yarma depends on a working implementation of `std::variant`, Boost (for Boost.Preprocessor), and my own [CallableTraits](https://github.com/badair/callable_traits) library.
 
 [badge.Wandbox]: https://img.shields.io/badge/try%20it-online-blue.svg

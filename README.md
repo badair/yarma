@@ -1,4 +1,4 @@
-# yarma <a target="_blank" href="http://melpon.org/wandbox/permlink/huhA2GdFq64cM4Ya">![Try it online][badge.wandbox]</a>
+# yarma <a target="_blank" href="http://melpon.org/wandbox/permlink/tKT0d6o587D2PcRw">![Try it online][badge.wandbox]</a>
 Yet Another Reflection Macro: simple, flexible reflection in C++17.
 
 You only need a single header file, `yarma.hpp`. The `YARMA_REFLECT` macro simply defines a member function named "members" that returns an array of custom variant types, which can then be inspected.
@@ -42,21 +42,23 @@ int main () {
         
         // We use std::visit here because the reflected members
         // are not convertible to each other. If they were, we
-        // could simply call m.get(emp) instead. the get function
+        // could simply call m.get(emp) instead. The get function
         // speaks std::invoke, so you can pass arguments to member
         // functions through it too, as long as your reflected members
         // have covariant signatures. If not, you can do your own
-        // SFINAE magic in a visitor with decltype(mem)::parameters,
-        // which is a std::tuple alias containing the member's
-        // std::invoke signature (where the first element is a reference
-        // to the parent object).You can also use decltype(mem)::return_type
+        // SFINAE magic in a visitor using decltype(mem)::parameters,
+        // which aliases a std::tuple containing the member's std::invoke
+        // signature (where the first element is a reference to the
+        // parent object).You can also use decltype(mem)::return_type
         // to inspect the result of std::invoke without needing to
         // decltype it.
         visit([=](auto mem) { cout << mem.get(emp); }, m);
         
+        // is_data returns true for data members
         if(m.is_data())
             cout << " (data) ";   
         else
+            // arity returns -1 for data members
             cout << " (function taking " << m.arity() << " arguments) ";
         
         cout << '\n';

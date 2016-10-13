@@ -45,7 +45,13 @@ int main () {
         // could simply call m.get(emp) instead. the get function
         // speaks std::invoke, so you can pass arguments to member
         // functions through it too, as long as your reflected members
-        // have covariant signatures
+        // have covariant signatures. If not, you can do your own
+        // SFINAE magic in a visitor with decltype(mem)::parameters,
+        // which is a std::tuple alias containing the member's
+        // std::invoke signature (where the first element is a reference
+        // to the parent object).You can also use decltype(mem)::return_type
+        // to inspect the result of std::invoke without needing to
+        // decltype it.
         visit([=](auto mem) { cout << mem.get(emp); }, m);
         
         if(m.is_data())

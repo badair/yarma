@@ -73,11 +73,12 @@ namespace yarma {
             }, *this);
         }
 
-        std::size_t arity() const {
+        int arity() const {
             return std::visit( [](auto mem){
-                // minus one to exclude the this pointer
                 return std::is_member_function_pointer_v<typename decltype(mem)::type>?
-                    std::tuple_size_v<typename decltype(mem)::parameter_types> - 1 : -1;
+                    // minus one to exclude the `this` object
+                    static_cast<int>(std::tuple_size_v<typename decltype(mem)::parameter_types> - 1)
+                    : -1;
             }, *this);
         }
 

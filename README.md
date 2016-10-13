@@ -38,7 +38,7 @@ int main () {
     
     for (auto m : emp.members()) {
         
-        std::cout << m.name() << " = ";
+        cout << m.name() << " = ";
         
         // We use std::visit here because the reflected members
         // are not convertible to each other. If they were, we
@@ -46,11 +46,11 @@ int main () {
         visit([=](auto mem) { cout << mem.get(emp); }, m);
         
         if(m.is_data())
-            std::cout << " (data) ";   
+            cout << " (data) ";   
         else
-            std::cout << " (function taking " << m.arity() << " arguments) ";
+            cout << " (function taking " << m.arity() << " arguments) ";
         
-        std::cout << '\n';
+        cout << '\n';
     }
 }
 ```

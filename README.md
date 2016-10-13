@@ -49,7 +49,7 @@ int main () {
         // speaks std::invoke, so you can pass arguments to member
         // functions through it too, as long as your reflected members
         // have covariant signatures. If not, you can do your own
-        // SFINAE magic in a visitor using decltype(mem)::parameters,
+        // SFINAE magic in a visitor using decltype(mem)::parameter_types,
         // which aliases a std::tuple containing the member's std::invoke
         // signature (where the first element is a reference to the
         // parent object).You can also use decltype(mem)::return_type

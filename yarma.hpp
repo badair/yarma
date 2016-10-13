@@ -15,22 +15,20 @@
 #include <boost/preprocessor/repetition/repeat.hpp>
 #include <boost/preprocessor/punctuation/comma_if.hpp>
 
+#include <callable_traits/parent_class_of.hpp>
+#include <callable_traits/return_type.hpp>
+#include <callable_traits/args.hpp>
+
 namespace yarma {
-
-    template<typename T>
-    struct split_member;
-
-    template<typename T, typename C>
-    struct split_member<T C::*> {
-        using type = T;
-        using parent = C;
-    };
 
     template<typename T, T mptr>
     struct member {
         
-        using type = typename split_member<T>::type;
-        using of_class = typename split_member<T>::parent;
+        using return_type = typename callable_traits::return_type_t<T>;
+        using parameter_types = callable_traits::args_t<T>;
+        using parent_class = callable_traits::parent_class_of<T>;
+        using type = T;
+
         static constexpr T ptr = mptr;
 
         template<typename... Args>
@@ -39,16 +37,62 @@ namespace yarma {
         }
     };
 
-    template<typename T, typename M, typename V>
-    decltype(auto) visit_member(T && obj, M && m, V && v) {
-        return std::visit(
-            [&obj, &v](auto && mm){return v(mm.get(obj));},
-            static_cast<M&&>(m)); 
-    }
+    template<typename... members>
+    struct member_var;
+} // namespace yarma
+
+namespace std {
 
     template<typename... members>
+    struct variant_size< ::yarma::member_var<members...>>
+      : public variant_size<std::variant<members...>> {};
+    
+    template<std::size_t I, typename... members>
+    struct variant_alternative<I, ::yarma::member_var<members...>>
+      : public variant_alternative<I, std::variant<members...>> {};
+} // namespace std
+
+namespace yarma {
+    
+    template<typename... members>
+    struct member_var 
+      : public std::variant<members...> {
+        
+        using std::variant<members...>::variant;
+        using std::variant<members...>::operator=;
+          
+        char const * name() const {
+            return std::visit( [](auto & mem){
+                return mem.name();
+            }, *this);
+        }
+
+        bool is_data() const {
+            return std::visit( [](auto mem){
+                return !std::is_member_function_pointer_v<typename decltype(mem)::type>;
+            }, *this);
+        }
+
+        std::size_t arity() const {
+            return std::visit( [](auto mem){
+                // minus one to exclude the this pointer
+                return std::is_member_function_pointer_v<typename decltype(mem)::type>?
+                    std::tuple_size_v<typename decltype(mem)::parameter_types> - 1 : -1;
+            }, *this);
+        }
+
+        template<typename ret = std::common_type<typename members::return_type...>,
+          typename... Args>
+        typename ret::type get(Args&&... args) const {
+            return std::visit( [&](auto mem){
+                return std::invoke(mem.ptr, static_cast<Args&&>(args)...);
+            }, *this);
+        }
+    };
+    
+    template<typename... members>
     static auto const & get_members() {
-        using type = std::array<std::variant<members...>, sizeof...(members)>;
+        using type = std::array<member_var<members...>, sizeof...(members)>;
         static type const results{members{}...}; 
         return results;
     }
@@ -56,8 +100,8 @@ namespace yarma {
 
 #define YARMA_REFLECT(seq)                                              \
     decltype(auto) members() const {                                    \
-        using yarma_reflectable_type_ =                                 \
-            std::remove_const_t<std::remove_pointer_t<decltype(this)>>; \
+        using T = std::remove_const_t<                                  \
+            std::remove_pointer_t<decltype(this)>>;                     \
         BOOST_PP_REPEAT(BOOST_PP_SEQ_SIZE(seq), YARMA_NAMES, seq)       \
         return ::yarma::get_members<BOOST_PP_REPEAT(                    \
             BOOST_PP_SEQ_SIZE(seq), YARMA_MEMBERS, seq)>();             \
@@ -65,17 +109,15 @@ namespace yarma {
 /**/
 
 #define YARMA_NAMES(z, i, seq)                                          \
-    struct BOOST_PP_CAT(yarma_reflectable_member_, i) : yarma::member<  \
-        decltype(&yarma_reflectable_type_::BOOST_PP_SEQ_ELEM(i,seq)),   \
-        &yarma_reflectable_type_::BOOST_PP_SEQ_ELEM(i,seq)> {           \
-        static constexpr auto & name() {                                \
+    struct BOOST_PP_CAT(yarma_, i) : yarma::member<                     \
+        decltype(&T::BOOST_PP_SEQ_ELEM(i,seq)),                         \
+        &T::BOOST_PP_SEQ_ELEM(i,seq)> {                                 \
+        static constexpr const char * name() {                          \
             return BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(i,seq));        \
         }                                                               \
     };                                                                  \
 /**/
 
-#define YARMA_MEMBERS(z, i, seq) BOOST_PP_COMMA_IF(i) \
-    BOOST_PP_CAT(yarma_reflectable_member_, i)        \
-/**/
+#define YARMA_MEMBERS(z, i, seq) BOOST_PP_COMMA_IF(i) BOOST_PP_CAT(yarma_, i)
 
 #endif // #ifndef YARMA_HPP

@@ -9,7 +9,7 @@ using std::visit;
 struct employee {
     
     int id;
-    string first_name;
+    string name;
     double hourly_wage;
     int weekly_hours;
     
@@ -19,7 +19,7 @@ struct employee {
     
     YARMA_REFLECT(
         (id)
-        (first_name)
+        (name)
         (hourly_wage)
         (weekly_hours)
         (weekly_earnings)
@@ -28,11 +28,19 @@ struct employee {
 
 int main () {
     
-    auto e = employee{1234, "Bob", 7.25, 40};
+    auto emp = employee{1234, "John Doe", 7.25, 40};
     
-    for (auto member : e.members()) {
-        visit([&e](auto member) {
-            cout << member.name() << " = " << member.get(e) << '\n';
-        }, member);
+    for (auto m : emp.members()) {
+        
+        std::cout << m.name() << " = ";
+        
+        visit([=](auto m) { cout << m.get(emp); }, m);
+        
+        if(m.is_data())
+            std::cout << " (data) ";   
+        else
+            std::cout << " (function taking " << m.arity() << " arguments) ";
+        
+        std::cout << '\n';
     }
 }

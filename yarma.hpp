@@ -26,7 +26,7 @@ namespace yarma {
         
         using return_type = typename callable_traits::return_type_t<T>;
         using parameter_types = callable_traits::args_t<T>;
-        using parent_class = callable_traits::parent_class_of<T>;
+        using parent_class = callable_traits::parent_class_of_t<T>;
         using type = T;
 
         static constexpr T ptr = mptr;

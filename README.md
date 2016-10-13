@@ -1,4 +1,4 @@
-# yarma <a target="_blank" href="http://melpon.org/wandbox/permlink/tKT0d6o587D2PcRw">![Try it online][badge.wandbox]</a>
+# yarma <a target="_blank" href="http://melpon.org/wandbox/permlink/JzmUX3xfdwHdNby9">![Try it online][badge.wandbox]</a>
 Yet Another Reflection Macro: simple, flexible reflection in C++17.
 
 Yarma was designed for ease-of-use over performance, but it's not terribly slow either. Yarma depends on a working implementation of `std::variant`, Boost (for Boost.Preprocessor), and my own [CallableTraits](https://github.com/badair/callable_traits) library, which is currently seeking a Boost review manager.

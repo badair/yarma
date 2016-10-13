@@ -42,9 +42,10 @@ int main () {
         
         // We use std::visit here because the reflected members
         // are not convertible to each other. If they were, we
-        // could simply call m.get() instead. Keep in mind that
-        // get speaks std::invoke, so you can pass arguments to
-        // member functions through it
+        // could simply call m.get(emp) instead. the get function
+        // speaks std::invoke, so you can pass arguments to member
+        // functions through it too, as long as your reflected members
+        // have covariant signatures
         visit([=](auto mem) { cout << mem.get(emp); }, m);
         
         if(m.is_data())
